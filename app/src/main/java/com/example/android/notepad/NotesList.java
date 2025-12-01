@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 
 
@@ -55,12 +56,19 @@ public class NotesList extends ListActivity {
     // For logging and debugging
     private static final String TAG = "NotesList";
 
+    private ListView listView;
+
+    private SearchView searchView;
+    private String[] dataColumns = { NotePad.Notes.COLUMN_NAME_TITLE,NotePad.Notes.COLUMN_NAME_CREATE_DATE } ;
+    private int[] viewIDs = { android.R.id.text1,R.id.itemdate };
+
     /**
      * The columns needed by the cursor adapter
      */
     private static final String[] PROJECTION = new String[] {
             NotePad.Notes._ID, // 0
             NotePad.Notes.COLUMN_NAME_TITLE, // 1
+            NotePad.Notes.COLUMN_NAME_CREATE_DATE
     };
 
     /** The index of the title column */
@@ -73,6 +81,7 @@ public class NotesList extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.noteslist_layout);
         // The user does not need to hold down the key to use menu shortcuts.
         setDefaultKeyMode(DEFAULT_KEYS_SHORTCUT);
 
@@ -88,6 +97,8 @@ public class NotesList extends ListActivity {
         if (intent.getData() == null) {
             intent.setData(NotePad.Notes.CONTENT_URI);
         }
+
+
 
         /*
          * Sets the callback for context menu activation for the ListView. The listener is set
@@ -118,11 +129,9 @@ public class NotesList extends ListActivity {
          */
 
         // The names of the cursor columns to display in the view, initialized to the title column
-        String[] dataColumns = { NotePad.Notes.COLUMN_NAME_TITLE } ;
 
         // The view IDs that will display the cursor columns, initialized to the TextView in
         // noteslist_item.xml
-        int[] viewIDs = { android.R.id.text1 };
 
         // Creates the backing adapter for the ListView.
         SimpleCursorAdapter adapter
@@ -136,6 +145,66 @@ public class NotesList extends ListActivity {
 
         // Sets the ListView's adapter to be the cursor adapter that was just created.
         setListAdapter(adapter);
+        //获取搜索栏视图
+        searchView=findViewById(R.id.searchView);
+        //设置文本监听
+        setSearchAdaoter();
+    }
+
+    //设置文本监听
+    private void setSearchAdaoter(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Cursor cursor = queryNotesByTitle(newText);
+                SimpleCursorAdapter adapter
+                        = new SimpleCursorAdapter(
+                        getApplicationContext(),                             // The Context for the ListView
+                        R.layout.noteslist_item,          // Points to the XML for a list item
+                        cursor,                           // The cursor to get items from
+                        dataColumns,
+                        viewIDs
+                );
+                setListAdapter(adapter);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Cursor cursor = queryNotesByTitle(query);
+                SimpleCursorAdapter adapter
+                        = new SimpleCursorAdapter(
+                        getApplicationContext(),                             // The Context for the ListView
+                        R.layout.noteslist_item,          // Points to the XML for a list item
+                        cursor,                           // The cursor to get items from
+                        dataColumns,
+                        viewIDs
+                );
+                setListAdapter(adapter);
+                return true;
+            }
+        });
+    }
+
+
+    //设置查询
+    private Cursor queryNotesByTitle(String keyword) {
+        String selection = null;
+        String[] selectionArgs = null;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+
+            selection = NotePad.Notes.SELECTION_TITLE_LIKE;
+            selectionArgs = new String[]{"%" + keyword.trim() + "%"};
+        }
+
+        return getContentResolver().query(
+                NotePad.Notes.CONTENT_URI,
+                PROJECTION,
+                selection,
+                selectionArgs,
+                NotePad.Notes.DEFAULT_SORT_ORDER
+        );
     }
 
     /**

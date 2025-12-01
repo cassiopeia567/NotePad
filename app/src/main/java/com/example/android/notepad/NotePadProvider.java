@@ -45,7 +45,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 /**
  * Provides access to a database of notes. Each note has a title, the note
@@ -516,7 +519,10 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
         }
 
         // Gets the current system time in milliseconds
-        Long now = Long.valueOf(System.currentTimeMillis());
+        Long now1 = Long.valueOf(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+08"));
+        String now = dateFormat.format(new Date(now1));
 
         // If the values map doesn't contain the creation date, sets the value to the current time.
         if (values.containsKey(NotePad.Notes.COLUMN_NAME_CREATE_DATE) == false) {

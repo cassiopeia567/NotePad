@@ -150,5 +150,7 @@ public final class NotePad {
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
         public static final String COLUMN_NAME_MODIFICATION_DATE = "modified";
+
+        public static final String SELECTION_TITLE_LIKE = COLUMN_NAME_TITLE + " LIKE ?";
     }
 }

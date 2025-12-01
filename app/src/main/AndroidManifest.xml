@@ -53,6 +53,7 @@
         <activity android:exported="true" android:name="NoteEditor"
             android:theme="@android:style/Theme.Holo.Light"
             android:screenOrientation="sensor"
+            android:windowFullscreen="false"
             android:configChanges="keyboardHidden|orientation"
         >
             <!-- This filter says that we can view or edit the data of
