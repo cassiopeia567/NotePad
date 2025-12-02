@@ -146,7 +146,7 @@ public class NotesList extends ListActivity {
         // Sets the ListView's adapter to be the cursor adapter that was just created.
         setListAdapter(adapter);
         //获取搜索栏视图
-        searchView=findViewById(R.id.searchView);
+        searchView = findViewById(R.id.searchView);
         //设置文本监听
         setSearchAdaoter();
     }
