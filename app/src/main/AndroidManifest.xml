@@ -31,7 +31,8 @@
             <grant-uri-permission android:pathPattern=".*" />
         </provider>
 
-        <activity android:exported="true" android:name="NotesList" android:label="@string/title_notes_list">
+        <activity android:exported="true" android:name="NotesList"
+            android:label="@string/title_notes_list">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -51,7 +52,7 @@
         </activity>
 
         <activity android:exported="true" android:name="NoteEditor"
-            android:theme="@android:style/Theme.Holo.Light"
+            android:theme="@android:style/Theme.Holo.NoActionBar"
             android:screenOrientation="sensor"
             android:windowFullscreen="false"
             android:configChanges="keyboardHidden|orientation"
@@ -113,6 +114,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
     </application>
 

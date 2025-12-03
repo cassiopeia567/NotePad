@@ -66,7 +66,7 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
     /**
      * The database version
      */
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     /**
      * A projection map used to select columns from the database
@@ -85,6 +85,7 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
             NotePad.Notes._ID,               // Projection position 0, the note's id
             NotePad.Notes.COLUMN_NAME_NOTE,  // Projection position 1, the note's content
             NotePad.Notes.COLUMN_NAME_TITLE, // Projection position 2, the note's title
+            NotePad.Notes.COLUMN_NAME_CATEGORY
     };
     private static final int READ_NOTE_NOTE_INDEX = 1;
     private static final int READ_NOTE_TITLE_INDEX = 2;
@@ -153,6 +154,7 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
         // Maps "created" to "created"
         sNotesProjectionMap.put(NotePad.Notes.COLUMN_NAME_CREATE_DATE,
                 NotePad.Notes.COLUMN_NAME_CREATE_DATE);
+        sNotesProjectionMap.put(NotePad.Notes.COLUMN_NAME_CATEGORY,NotePad.Notes.COLUMN_NAME_CATEGORY);
 
         // Maps "modified" to "modified"
         sNotesProjectionMap.put(
@@ -199,7 +201,8 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
                    + NotePad.Notes.COLUMN_NAME_TITLE + " TEXT,"
                    + NotePad.Notes.COLUMN_NAME_NOTE + " TEXT,"
                    + NotePad.Notes.COLUMN_NAME_CREATE_DATE + " INTEGER,"
-                   + NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE + " INTEGER"
+                   + NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE + " INTEGER,"
+                   + NotePad.Notes.COLUMN_NAME_CATEGORY + "TEXT DEFAULT '默认分类'"
                    + ");");
        }
 
@@ -212,16 +215,11 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
         */
        @Override
        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-           // Logs that the database is being upgraded
-           Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-                   + newVersion + ", which will destroy all old data");
-
-           // Kills the table and existing data
-           db.execSQL("DROP TABLE IF EXISTS notes");
-
-           // Recreates the database with a new version
-           onCreate(db);
+           if (oldVersion < 4) {
+               db.execSQL("ALTER TABLE " + NotePad.Notes.TABLE_NAME +
+                       " ADD COLUMN " + NotePad.Notes.COLUMN_NAME_CATEGORY + " TEXT DEFAULT '默认分类'");
+           }
+           // 移除 DROP TABLE 和 onCreate 调用，避免覆盖数据
        }
    }
 

@@ -45,6 +45,8 @@ public final class NotePad {
          */
         public static final String TABLE_NAME = "notes";
 
+        public static final String COLUMN_NAME_CATEGORY = "category";
+
         /*
          * URI definitions
          */
@@ -152,5 +154,7 @@ public final class NotePad {
         public static final String COLUMN_NAME_MODIFICATION_DATE = "modified";
 
         public static final String SELECTION_TITLE_LIKE = COLUMN_NAME_TITLE + " LIKE ?";
+
+        public static final String SELECTION_CATEGORY = COLUMN_NAME_CATEGORY + "== ?";
     }
 }

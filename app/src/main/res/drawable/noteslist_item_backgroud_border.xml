@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 背景色（与截图一致的深黑） -->
+    <solid android:color="#000000" />
+    <!-- 边框（浅灰，与截图匹配） -->
+    <stroke android:color="#66686D" android:width="1dp" />
+    <!-- 外部圆角（与截图一致的大圆角） -->
+    <corners android:radius="12dp" />
+</shape>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 如果有 styles.xml 文件，添加或修改以下内容 -->
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- 修改 ActionBar 高度 -->
+        <item name="actionBarSize">48dp</item> <!-- 默认是 56dp，可以调整为 48dp 或更小 -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <!-- 自定义 ActionBar 样式 -->
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <!-- 设置最小高度 -->
+        <item name="height">48dp</item>
+        <item name="minHeight">48dp</item>
+    </style>
+
+    <style name="NoteEditorTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!-- ActionBar 背景色设为黑色 -->
+        <item name="android:actionBarStyle">@style/NoteActionBar</item>
+        <!-- 菜单图标颜色设为白色 -->
+        <item name="android:textColorPrimary">@android:color/white</item>
+    </style>
+
+    <!-- 自定义 ActionBar 样式 -->
+    <style name="NoteActionBar" parent="android:Widget.Holo.ActionBar">
+        <item name="android:background">@android:color/black</item>  <!-- 黑色背景 -->
+        <item name="android:titleTextStyle">
+        </item>
+    </style>
+</resources>
