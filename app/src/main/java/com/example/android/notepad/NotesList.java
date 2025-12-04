@@ -324,6 +324,10 @@ public class NotesList extends ListActivity {
     protected void onResume() {
         super.onResume();
         searchNotes();
+        // 重新加载分类数据（关键修改）
+        loadCategoriesFromDB();
+        // 重新加载笔记列表
+        reloadNotesByCategory();
 
     }
 
