@@ -12,12 +12,8 @@
           so that the user can paste in the data.. -->
     <item android:id="@+id/menu_paste"
           android:icon="@drawable/ic_menu_compose"
-          android:title="@string/menu_paste"
+          android:title="复制"
           android:alphabeticShortcut='p' />
-    <item android:id="@+id/menu_edit"
-        android:icon="@drawable/ic_menu_compose"
-        android:title="编辑"
-        android:alphabeticShortcut='p' />
     <item android:id="@+id/orderByCreateTime"
         android:icon="@drawable/ic_menu_compose"
         android:title="按创建时间排序"

@@ -19,11 +19,13 @@ package com.example.android.notepad;
 import com.example.android.notepad.NotePad;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -41,13 +43,16 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,13 +82,14 @@ public class NotesList extends ListActivity {
     private String currentCategory = "全部";
     private int selectedPosition = 0; // 记录选中位置
 
-
-
+    private ImageButton addCategory;
 
     private SearchView searchView;
     private String[] dataColumns = { NotePad.Notes.COLUMN_NAME_TITLE,NotePad.Notes.COLUMN_NAME_CREATE_DATE } ;
     private int[] viewIDs = { android.R.id.text1,R.id.itemdate };
-
+    private static final String[] CATEGORY_PROJECTION = {
+            NotePad.Categories.COLUMN_NAME_CATEGORY_NAME
+    };
     /**
      * The columns needed by the cursor adapter
      */
@@ -130,6 +136,16 @@ public class NotesList extends ListActivity {
          */
         getListView().setOnCreateContextMenuListener(this);
         categoryContainer = findViewById(R.id.categoryContainer);
+        addCategory = findViewById(R.id.btn_add_category);
+        addCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 创建跳转到分类活动的意图
+                Intent intent = new Intent(NotesList.this, CategoryActivity.class);
+                // 启动活动并等待返回结果（使用请求码标识）
+                startActivity(intent);
+            }
+        });
         loadCategoriesFromDB(); // 加载分类数据
         /* Performs a managed query. The Activity handles closing and requerying the cursor
          * when needed.
@@ -174,29 +190,23 @@ public class NotesList extends ListActivity {
         categoryData.clear();
         categoryData.add("全部"); // 默认添加"全部"分类
 
-        // 查询数据库中所有不重复的分类（使用ContentProvider）
         Cursor cursor = getContentResolver().query(
-                NotePad.Notes.CONTENT_URI,
-                new String[]{NotePad.Notes.COLUMN_NAME_CATEGORY},
+                NotePad.Categories.CONTENT_URI,
+                new String[]{NotePad.Categories.COLUMN_NAME_CATEGORY_NAME},
                 null,
                 null,
-                NotePad.Notes.COLUMN_NAME_CATEGORY + " ASC"
+                NotePad.Categories.DEFAULT_SORT_ORDER
         );
 
         if (cursor != null) {
-            Set<String> categorySet = new HashSet<>(); // 用于去重
             while (cursor.moveToNext()) {
                 String category = cursor.getString(0);
-                // 过滤空值和重复分类
-                if (!TextUtils.isEmpty(category) && !categorySet.contains(category)) {
-                    categorySet.add(category);
+                if (!TextUtils.isEmpty(category)) {
                     categoryData.add(category);
                 }
             }
             cursor.close();
         }
-
-        // 动态添加分类项到容器
         addCategoryViews();
     }
     private void addCategoryViews() {
@@ -306,6 +316,7 @@ public class NotesList extends ListActivity {
             }
         });
     }
+
 
 
 
@@ -453,6 +464,10 @@ public class NotesList extends ListActivity {
             Intent intent = new Intent(this, SearchActivity.class);
             startActivity(intent);
             return true;
+        }else if (item.getItemId()==R.id.orderByCreateTime){
+            
+        } else if (item.getItemId()==R.id.orderByModifyTime) {
+            
         }
         return super.onOptionsItemSelected(item);
     }
@@ -597,9 +612,89 @@ public class NotesList extends ListActivity {
 
             // Returns to the caller and skips further processing.
             return true;
+        } else if (id ==R.id.context_move) {
+            updateNoteCategory( info.id);
         }
         return super.onContextItemSelected(item);
     }
+    // 加载所有分类名称（返回字符串列表）
+    private List<String> loadCategories() {
+        List<String> categoryNames = new ArrayList<>();
+        Cursor cursor = null;
+        try {
+            // 查询分类表的所有分类名称
+            cursor = getContentResolver().query(
+                    NotePad.Categories.CONTENT_URI,
+                    CATEGORY_PROJECTION, // 只查询分类名称字段
+                    null,
+                    null,
+                    NotePad.Categories.DEFAULT_SORT_ORDER // 按默认排序
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // 遍历游标，提取分类名称
+                int nameColumnIndex = cursor.getColumnIndexOrThrow(NotePad.Categories.COLUMN_NAME_CATEGORY_NAME);
+                do {
+                    String categoryName = cursor.getString(nameColumnIndex);
+                    if (!TextUtils.isEmpty(categoryName)) { // 过滤空值
+                        categoryNames.add(categoryName);
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "查询分类失败", Toast.LENGTH_SHORT).show();
+        } finally {
+            if (cursor != null) {
+                cursor.close(); // 确保游标关闭，避免内存泄漏
+            }
+        }
+        return categoryNames;
+    }
+    private void updateNoteCategory(long noteId) {
+        // 1. 查询所有已有分类名称
+        List<String> categories = loadCategories();
+
+
+        // 2. 显示分类选择对话框（直接使用字符串列表）
+        String[] categoryNames = categories.toArray(new String[0]); // 转换为数组
+
+        new AlertDialog.Builder(this)
+                .setTitle("选择目标分类")
+                .setItems(categoryNames, (dialog, which) -> {
+                    // 3. 获取用户选择的分类名称
+                    String selectedCategory = categories.get(which);
+                    // 4. 更新笔记的分类（使用名称）
+                    updateNoteCategoryName(noteId, selectedCategory);
+                })
+                .show();
+    }
+    // 更新笔记的分类名称
+    private void updateNoteCategoryName(long noteId, String categoryName) {
+        // 构建当前笔记的 URI（单条笔记的具体 URI）
+        Uri noteUri = ContentUris.withAppendedId(NotePad.Notes.CONTENT_URI, noteId);
+
+        // 封装要更新的分类名称和修改时间
+        ContentValues values = new ContentValues();
+        values.put(NotePad.Notes.COLUMN_NAME_CATEGORY, categoryName); // 假设字段名为 COLUMN_NAME_CATEGORY
+        values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, System.currentTimeMillis()); // 更新修改时间
+
+        // 执行更新操作
+        try {
+            int rowsAffected = getContentResolver().update(noteUri, values, null, null);
+            if (rowsAffected > 0) {
+                Toast.makeText(this, "已移动到「" + categoryName + "」", Toast.LENGTH_SHORT).show();
+                // 刷新笔记列表（根据你的列表刷新逻辑实现）
+
+            } else {
+                Toast.makeText(this, "移动失败，笔记不存在", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "更新分类失败：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     /**
      * This method is called when the user clicks a note in the displayed list.

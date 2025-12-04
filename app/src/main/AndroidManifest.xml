@@ -117,7 +117,9 @@
         <activity
             android:name=".SearchActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
-
+        <activity
+            android:name=".CategoryActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
     </application>
 
 </manifest>
