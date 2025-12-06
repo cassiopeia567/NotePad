@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 选中状态：蓝色背景 + 圆角 -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <!-- 背景色（选中时的蓝色） -->
+            <solid android:color="@color/colorPrimary" />
+            <!-- 圆角半径（可根据需要调整，如18dp使高度36dp的框呈圆形） -->
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+
+    <!-- 未选中状态：灰色背景 + 圆角 -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- 背景色（未选中时的灰色） -->
+            <solid android:color="@android:color/darker_gray" />
+            <!-- 保持与选中状态一致的圆角 -->
+            <corners android:radius="18dp" />
+        </shape>
+    </item>
+</selector>
