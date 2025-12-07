@@ -54,7 +54,6 @@ public class SearchActivity extends ListActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT);
     }
-    //设置文本监听
     private void setSearchAdaoter(){
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
